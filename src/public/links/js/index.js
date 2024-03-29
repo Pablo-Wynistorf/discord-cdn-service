@@ -7,12 +7,11 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function displayLinksInTable(links) {
-  const userTable = document.getElementById("userTable");
   const cdnTable = document.getElementById("cdnTable");
-  userTable.innerHTML = "";
+  cdnTable.innerHTML = "";
 
   if (links.length === 0) {
-    displayStatus("Error", "Error uploading files. Please try again later.");
+    displayStatus("Error", "You have not uploaded any files yet.");
     return;
   }
 
@@ -28,7 +27,7 @@ function displayLinksInTable(links) {
                     <a href="${cdnLink}" target="_blank">${cdnLink}</a>
                 </td>
             `;
-      userTable.appendChild(row);
+            cdnTable.appendChild(row);
     }
   });
 }
