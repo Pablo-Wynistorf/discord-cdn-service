@@ -65,6 +65,7 @@ function uploadFiles(files) {
   fetch("/api/upload", {
     method: "POST",
     body: formData,
+    timeout: 3600000,
   })
     .then((response) => {
       if (response.ok) {
