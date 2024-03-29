@@ -73,6 +73,13 @@ async function uploadFiles(files) {
       const cdnLinks = data.cdnLinks;
       if (cdnLinks && cdnLinks.length > 0) {
         displayLinksInTable(cdnLinks);
+        
+        const existingCdnLinks = JSON.parse(localStorage.getItem("cdnLinks")) || [];
+        
+        const updatedCdnLinks = existingCdnLinks.concat(cdnLinks);
+      
+        localStorage.setItem("cdnLinks", JSON.stringify(updatedCdnLinks));
+
         document.getElementById("uploadText").textContent = "";
         document.getElementById("fileInput").value = "";
         document.getElementById("upload-box").style.display = "none";
@@ -97,6 +104,7 @@ async function uploadFiles(files) {
     document.getElementById("upload-icon").style.display = "flex";
   }
 }
+
 
 
 
@@ -146,6 +154,10 @@ function copyToClipboard(text) {
 
 document.getElementById("reloadButton").addEventListener("click", function () {
   location.reload();
+});
+
+document.getElementById("links").addEventListener("click", function () {
+  window.location.href = "/links";
 });
 
 function displayStatus(status, message) {

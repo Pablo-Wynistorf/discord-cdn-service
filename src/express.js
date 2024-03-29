@@ -25,7 +25,8 @@ const upload = multer({ storage: storage });
 app.use(express.json());
 app.use(cors());
 
-app.use('/', express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(path.join(__dirname, 'public/home')));
+app.use('/links', express.static(path.join(__dirname, 'public/links')));
 
 
 const checkFileUpload = async (req, res, next) => {
