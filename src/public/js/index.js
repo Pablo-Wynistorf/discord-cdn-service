@@ -30,10 +30,15 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
-function uploadFiles(files) {
+async function uploadFiles(files) {
   if (!files || !files.length) {
     displayStatus("Error", "Please select at least one file");
     return;
+  }
+
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append("files", file);
   }
 
   let errorDetected = false;
@@ -51,49 +56,48 @@ function uploadFiles(files) {
     return;
   }
 
-  const formData = new FormData();
-  for (let i = 0; i < files.length; i++) {
-    formData.append("files", files[i]);
-  }
-
   const loadingIcon = document.getElementById("loadingIcon");
-
   loadingIcon.classList.remove("hidden");
   document.getElementById("uploadText").classList.add("hidden");
   document.getElementById("upload-icon").style.display = "none";
 
-  fetch("/api/upload", {
-    method: "POST",
-    body: formData,
-    timeout: 3600000,
-  })
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        displayStatus("Error", "Error uploading files. Please try again later.");
-      }
-    })
-    .then((data) => {
+  try {
+    const response = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+      timeout: 3600000,
+    });
+
+    if (response.ok) {
+      const data = await response.json();
       const cdnLinks = data.cdnLinks;
       if (cdnLinks && cdnLinks.length > 0) {
         displayLinksInTable(cdnLinks);
         document.getElementById("uploadText").textContent = "";
+        document.getElementById("fileInput").value = "";
+        document.getElementById("upload-box").style.display = "none";
+        document.getElementById("fileInput").style.display = "none";
       } else {
         displayStatus("Error", "Error uploading files. Please try again later.");
       }
-    })
-    .catch((error) => {
+    } else if (response.status === 460) {
+      displayStatus("Error", "You cannot upload more than 500MB of data per single request");
+    } else if (response.status === 461) {
+      displayStatus("Error", "At least one file exceeds the limit of max. 25MB per file");
+    } else if (response.status === 400) {
+      displayStatus("Error", "Please upload at least one file");
+    } else {
       displayStatus("Error", "Error uploading files. Please try again later.");
-    })
-    .finally(() => {
-      loadingIcon.classList.add("hidden");
-      document.getElementById("uploadText").classList.remove("hidden");
-      document.getElementById("fileInput").value = "";
-      document.getElementById("upload-box").style.display = "none";
-      document.getElementById("fileInput").style.display = "none";
-    });
+    }
+  } catch (error) {
+    displayStatus("Error", "Error uploading files. Please try again later.");
+  } finally {
+    loadingIcon.classList.add("hidden");
+    document.getElementById("uploadText").classList.remove("hidden");
+    document.getElementById("upload-icon").style.display = "flex";
+  }
 }
+
 
 
 function displayLinksInTable(links) {

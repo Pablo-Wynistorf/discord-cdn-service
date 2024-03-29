@@ -28,20 +28,32 @@ app.use(cors());
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 
-app.post("/api/upload", upload.array("files"), async (req, res) => {
+const checkFileUpload = async (req, res, next) => {
+
+    const requestSize = req.headers['content-length'];
+
+    if (requestSize > 500 * 1024 * 1024) {
+        return res.status(460).json({ message: 'You cannot upload more than 500MB of data per single request' });
+    }
+
+    next();
+};
+
+
+
+app.post("/api/upload", checkFileUpload, upload.array("files"), async (req, res) => {
     try {
         const files = req.files;
 
         if (!files || files.length === 0) {
             return res.status(400).send("Please upload at least one file");
         }
-
-        Array.from(files).forEach(file => {
+    
+        for (const file of files) {
             if (file.size > 25 * 1024 * 1024) {
-              return res.status(413).json({ message: `The file '${file.originalname}' exceeds the 25MB limit per file` });
+                return res.status(461).json({ message: `The file '${file.originalname}' exceeds the 25MB limit per file` });
             }
-          });
-
+        }
 
         const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
         if (channel && files) {
@@ -54,6 +66,7 @@ app.post("/api/upload", upload.array("files"), async (req, res) => {
                         if (cdnLinks.length === files.length) {
                             res.json({ cdnLinks });
                         }
+                       return multer.memoryStorage()._removeFile(null, file, () => { });
                     })
                     .catch(error => {
                         res.status(500).send('Internal Server Error');
