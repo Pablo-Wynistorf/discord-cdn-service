@@ -40,7 +40,7 @@ function uploadFiles(files) {
 
   Array.from(files).forEach(file => {
     if (file.size > 25 * 1024 * 1024) {
-      displayStatus("Error", `The file '${file.name}' exceeds the 25MB limit per file`);
+      displayStatus("Error", `The file '${file.name}' exceeds the limit of max. 25MB per file`);
       errorDetected = true;
     }
   });
