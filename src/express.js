@@ -36,13 +36,12 @@ app.post("/api/upload", upload.array("files"), async (req, res) => {
             return res.status(400).send("Please upload at least one file");
         }
 
-        let totalSize = 0;
-        for (const file of files) {
-            totalSize += file.size;
-        }
-        if (totalSize > 25 * 1024 * 1024) {
-            return res.status(413).send("At least one file exceeds the 25MB limit.");
-        }
+        Array.from(files).forEach(file => {
+            if (file.size > 25 * 1024 * 1024) {
+              return res.status(413).json({ message: `The file '${file.originalname}' exceeds the 25MB limit per file` });
+            }
+          });
+
 
         const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
         if (channel && files) {

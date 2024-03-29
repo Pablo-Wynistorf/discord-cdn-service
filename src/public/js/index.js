@@ -1,38 +1,53 @@
-document.getElementById("fileInput").addEventListener("change", function () {
-  updateFileList(this.files);
-  uploadFiles();
-});
-
-document.body.addEventListener("drop", function (event) {
-  event.preventDefault();
-  event.stopPropagation();
-  updateFileList(event.dataTransfer.files);
-  uploadFiles();
-});
-
-document.body.addEventListener("dragover", function (event) {
-  event.preventDefault();
-  event.stopPropagation();
-});
-
-function updateFileList(files) {
-  const uploadText = document.getElementById("uploadText");
-  const fileList = document.getElementById("fileList");
-  uploadText.textContent = "Selected Files:";
-  fileList.innerHTML = "";
-  for (let i = 0; i < files.length; i++) {
-    const li = document.createElement("li");
-    li.textContent = files[i].name;
-    fileList.appendChild(li);
-  }
-}
-
-function uploadFiles() {
+document.addEventListener("DOMContentLoaded", function () {
   const fileInput = document.getElementById("fileInput");
-  const files = fileInput.files;
 
-  if (!files.length) {
-    displayStatus("Please select at least one file.");
+  fileInput.addEventListener("change", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    uploadFiles(event.target.files);
+  });
+
+  document.body.addEventListener("dragover", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
+  document.body.addEventListener("dragenter", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
+  document.body.addEventListener("dragleave", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
+  document.body.addEventListener("drop", function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    uploadFiles(event.dataTransfer.files);
+  });
+});
+
+
+function uploadFiles(files) {
+  if (!files || !files.length) {
+    displayStatus("Error", "Please select at least one file");
+    return;
+  }
+
+  let errorDetected = false;
+
+  Array.from(files).forEach(file => {
+    if (file.size > 25 * 1024 * 1024) {
+      displayStatus("Error", `The file '${file.name}' exceeds the 25MB limit per file`);
+      errorDetected = true;
+    }
+  });
+
+  if (errorDetected) {
+    document.getElementById("fileInput").value = "";
+    files.length = 0;
     return;
   }
 
@@ -40,13 +55,12 @@ function uploadFiles() {
   for (let i = 0; i < files.length; i++) {
     formData.append("files", files[i]);
   }
+
   const loadingIcon = document.getElementById("loadingIcon");
 
   loadingIcon.classList.remove("hidden");
   document.getElementById("uploadText").classList.add("hidden");
   document.getElementById("upload-icon").style.display = "none";
-
-  const totalSize = Array.from(files).reduce((acc, file) => acc + file.size, 0);
 
   fetch("/api/upload", {
     method: "POST",
@@ -56,7 +70,7 @@ function uploadFiles() {
       if (response.ok) {
         return response.json();
       } else {
-        throw new Error("Failed to upload files.");
+        displayStatus("Error", "Error uploading files. Please try again later.");
       }
     })
     .then((data) => {
@@ -65,27 +79,31 @@ function uploadFiles() {
         displayLinksInTable(cdnLinks);
         document.getElementById("uploadText").textContent = "";
       } else {
-        displayStatus("No CDN links found.");
+        displayStatus("Error", "Error uploading files. Please try again later.");
       }
     })
     .catch((error) => {
-      console.error("Error uploading files:", error);
-      displayStatus("Error uploading files. Please try again.");
+      displayStatus("Error", "Error uploading files. Please try again later.");
     })
     .finally(() => {
       loadingIcon.classList.add("hidden");
       document.getElementById("uploadText").classList.remove("hidden");
       document.getElementById("fileInput").value = "";
-      document.getElementById("fileList").value = "";
       document.getElementById("upload-box").style.display = "none";
       document.getElementById("fileInput").style.display = "none";
-      document.getElementById("fileList").style.display = "none";
     });
 }
 
+
 function displayLinksInTable(links) {
   const userTable = document.getElementById("userTable");
+  const cdnTable = document.getElementById("cdnTable");
   userTable.innerHTML = "";
+
+  if (links.length === 0) {
+    displayStatus("Error", "Error uploading files. Please try again later.");
+    return;
+  }
 
   links.forEach((linkObj) => {
     for (const [fileName, cdnLink] of Object.entries(linkObj)) {
@@ -103,16 +121,9 @@ function displayLinksInTable(links) {
     }
   });
 
-  const uploadStatus = document.getElementById("uploadStatus");
-  uploadStatus.classList.remove("hidden");
+  cdnTable.classList.remove("hidden");
+  displayStatus("Success", "CDN files uploaded successfully");
   document.getElementById("reloadButton").classList.remove("hidden");
-}
-
-function displayStatus(message) {
-  const statusDiv = document.getElementById("uploadStatus");
-  statusDiv.innerHTML = message;
-  statusDiv.classList.remove("hidden");
-  document.getElementById("reloadButton").classList.add("hidden");
 }
 
 function copyToClipboard(text) {
@@ -125,21 +136,31 @@ function copyToClipboard(text) {
   el.select();
   document.execCommand("copy");
   document.body.removeChild(el);
-  displaySuccessMessage();
-}
-function displaySuccessMessage() {
-  const successMessage = document.getElementById("successMessage");
-  successMessage.style.display = "block";
-  setTimeout(() => {
-    successMessage.style.display = "none";
-  }, 3000);
-}
-
-function dismissSuccessMessage() {
-  const successMessage = document.getElementById("successMessage");
-  successMessage.style.display = "none";
+  displayStatus("Success", "Link copied to clipboard");
 }
 
 document.getElementById("reloadButton").addEventListener("click", function () {
   location.reload();
 });
+
+function displayStatus(status, message) {
+  if (status === "Success") {
+    document.getElementById("statusMessage").classList.add("text-black");
+    document.getElementById("statusMessage").classList.add("bg-green-400");
+  } else {
+    document.getElementById("statusMessage").classList.add("text-black");
+    document.getElementById("statusMessage").classList.add("bg-red-400");
+  }
+  const statusMessage = document.getElementById("statusMessage");
+  statusMessage.innerText = message;
+  statusMessage.style.display = "flex";
+
+  setTimeout(() => {
+    dismissStatusMessage();
+  }, 5000);
+}
+
+function dismissStatusMessage() {
+  const statusMessage = document.getElementById("statusMessage");
+  statusMessage.style.display = "none";
+}
