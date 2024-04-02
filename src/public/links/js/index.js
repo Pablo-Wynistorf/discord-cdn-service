@@ -1,33 +1,49 @@
 document.addEventListener("DOMContentLoaded", function () {
-
   const links = JSON.parse(localStorage.getItem("cdnLinks")) || [];
-      
   displayLinksInTable(links);
-
 });
 
 function displayLinksInTable(links) {
-  const cdnTable = document.getElementById("cdnTable");
-  cdnTable.innerHTML = "";
+  const cdnTableBody = document.getElementById("cdnTableBody");
+  cdnTableBody.innerHTML = "";
 
   if (links.length === 0) {
     displayStatus("Error", "You have not uploaded any files yet.");
     return;
   }
 
+  
+  const cdnTable = document.getElementById("cdnTable");
+  cdnTable.classList.remove("hidden");
+
   links.forEach((linkObj) => {
     for (const [fileName, cdnLink] of Object.entries(linkObj)) {
       const row = document.createElement("tr");
-      row.innerHTML = `
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
-                    <button class="copy-btn bg-gray-700 text-white px-2 py-1 rounded" onclick="copyToClipboard('${cdnLink}')">Copy</button>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">${fileName}</td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
-                    <a href="${cdnLink}" target="_blank">${cdnLink}</a>
-                </td>
-            `;
-            cdnTable.appendChild(row);
+
+      const copyCell = document.createElement("td");
+      copyCell.className = "whitespace-nowrap px-3 py-4 text-sm text-gray-300";
+      const copyButton = document.createElement("button");
+      copyButton.className = "copy-btn bg-gray-700 text-white px-2 py-1 rounded";
+      copyButton.textContent = "Copy";
+      copyButton.addEventListener("click", () => copyToClipboard(cdnLink));
+      copyCell.appendChild(copyButton);
+      row.appendChild(copyCell);
+
+      const fileNameCell = document.createElement("td");
+      fileNameCell.className = "whitespace-nowrap px-3 py-4 text-sm text-gray-300";
+      fileNameCell.textContent = fileName;
+      row.appendChild(fileNameCell);
+
+      const cdnLinkCell = document.createElement("td");
+      cdnLinkCell.className = "whitespace-nowrap px-3 py-4 text-sm text-gray-300";
+      const cdnLinkAnchor = document.createElement("a");
+      cdnLinkAnchor.href = cdnLink;
+      cdnLinkAnchor.target = "_blank";
+      cdnLinkAnchor.textContent = cdnLink;
+      cdnLinkCell.appendChild(cdnLinkAnchor);
+      row.appendChild(cdnLinkCell);
+
+      cdnTableBody.appendChild(row);
     }
   });
 }
@@ -50,15 +66,15 @@ document.getElementById("upload-button").addEventListener("click", function () {
 });
 
 function displayStatus(status, message) {
-  if (status === "Success") {
-    document.getElementById("statusMessage").classList.add("text-black");
-    document.getElementById("statusMessage").classList.add("bg-green-400");
-  } else {
-    document.getElementById("statusMessage").classList.add("text-black");
-    document.getElementById("statusMessage").classList.add("bg-red-400");
-  }
   const statusMessage = document.getElementById("statusMessage");
   statusMessage.innerText = message;
+  if (status === "Success") {
+    statusMessage.classList.remove("bg-red-400");
+    statusMessage.classList.add("bg-green-400");
+  } else {
+    statusMessage.classList.remove("bg-green-400");
+    statusMessage.classList.add("bg-red-400");
+  }
   statusMessage.style.display = "flex";
 
   setTimeout(() => {
@@ -70,4 +86,3 @@ function dismissStatusMessage() {
   const statusMessage = document.getElementById("statusMessage");
   statusMessage.style.display = "none";
 }
-

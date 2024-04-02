@@ -36,6 +36,8 @@ async function uploadFiles(files) {
     return;
   }
 
+  document.getElementById("fileInput").disabled = true;
+
   const formData = new FormData();
   for (const file of files) {
     formData.append("files", file);
@@ -106,16 +108,17 @@ async function uploadFiles(files) {
 }
 
 
-
-
 function displayLinksInTable(links) {
-  const cdnTable = document.getElementById("cdnTable");
-  cdnTable.innerHTML = "";
+  const cdnTableBody = document.getElementById("cdnTable").querySelector("tbody");
+  cdnTableBody.innerHTML = "";
 
   if (links.length === 0) {
     displayStatus("Error", "Error uploading files. Please try again later.");
     return;
   }
+
+  const cdnTable = document.getElementById("cdnTable");
+  cdnTable.classList.remove("hidden");
 
   links.forEach((linkObj) => {
     for (const [fileName, cdnLink] of Object.entries(linkObj)) {
@@ -129,14 +132,14 @@ function displayLinksInTable(links) {
                     <a href="${cdnLink}" target="_blank">${cdnLink}</a>
                 </td>
             `;
-          cdnTable.appendChild(row);
+      cdnTableBody.appendChild(row);
     }
   });
-
-  cdnTable.classList.remove("hidden");
   displayStatus("Success", "CDN files uploaded successfully");
   document.getElementById("reloadButton").classList.remove("hidden");
 }
+
+
 
 function copyToClipboard(text) {
   const el = document.createElement("textarea");
