@@ -194,7 +194,7 @@ const curlCommand = document.getElementById('curlCommand');
 const currentHostname = window.location.origin;
 
 
-curlCommand.innerHTML = `curl -F "files=@/path/to/file" ${currentHostname}/api/upload`;
+curlCommand.innerHTML = `curl -X POST ${currentHostname}/api/upload -F "files=@/path/to/file"`;
 
 copyCommand.addEventListener('click', () => {
   navigator.clipboard.writeText(curlCommand.textContent);
