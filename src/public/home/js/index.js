@@ -183,3 +183,30 @@ function dismissStatusMessage() {
   const statusMessage = document.getElementById("statusMessage");
   statusMessage.style.display = "none";
 }
+
+
+const cliButton = document.getElementById('cliButton');
+const cliModal = document.getElementById('cliModal');
+const closeModal = document.getElementById('closeModal');
+
+const curlCommand = document.getElementById('curlCommand');
+
+const currentHostname = window.location.origin;
+
+
+curlCommand.innerHTML = `curl -F "files=@/path/to/file" ${currentHostname}/api/upload`;
+
+copyCommand.addEventListener('click', () => {
+  navigator.clipboard.writeText(curlCommand.textContent);
+  displayStatus("Success", "Command copied to clipboard");
+});
+
+
+
+cliButton.addEventListener('click', () => {
+  cliModal.classList.remove('hidden');
+});
+
+closeModal.addEventListener('click', () => {
+  cliModal.classList.add('hidden');
+});
