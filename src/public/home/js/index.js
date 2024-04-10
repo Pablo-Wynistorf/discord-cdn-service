@@ -125,7 +125,7 @@ function displayLinksInTable(links) {
       const row = document.createElement("tr");
       row.innerHTML = `
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
-                    <button class="copy-btn bg-gray-700 text-white px-2 py-1 rounded" onclick="copyToClipboard('${cdnLink}')">Copy</button>
+                    <button class="copy-btn bg-gray-700 text-white px-2 py-1 rounded border border-slate-500 hover:border-slate-100" onclick="copyToClipboard('${cdnLink}')">Copy</button>
                 </td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">${fileName}</td>
                 <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">

@@ -8,13 +8,13 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="bg-gray-900 flex items-center justify-center min-h-screen">
-  <button id="links" class="fixed top-4 right-4 bg-gray-500 text-white py-2 px-4 rounded cursor-pointer border border-slate-500 hover:border-slate-100">
+  <button id="links" class="fixed top-4 right-4 bg-gray-700 text-white py-2 px-4 rounded cursor-pointer border border-slate-500 hover:border-slate-100">
     Show uploaded files
   </button>  
-  <button id="reloadButton" class="hidden fixed top-4 left-4 bg-gray-500 text-white py-2 px-4 rounded cursor-pointer border border-slate-500 hover:border-slate-100">
+  <button id="reloadButton" class="hidden fixed top-4 left-4 bg-gray-700 text-white py-2 px-4 rounded cursor-pointer border border-slate-500 hover:border-slate-100">
     Upload more files to CDN
   </button>  
-  <button id="cliButton" class="fixed bottom-4 left-4 bg-gray-500 text-white py-2 px-4 rounded cursor-pointer border border-slate-500 hover:border-slate-100">
+  <button id="cliButton" class="fixed bottom-4 left-4 bg-gray-700 text-white py-2 px-4 rounded cursor-pointer border border-slate-500 hover:border-slate-100">
     View CLI command
   </button>  
   <div id="cliModal" class="hidden fixed top-0 left-0 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50 z-50">
@@ -22,11 +22,11 @@
         <p class="text-xl font-semibold mb-4">CLI Command</p>
         <p class="mb-8">Use this command to upload files via curl</p>
         <div class="flex items-center mb-4">
-            <input type="text" id="filePathInput" placeholder="Enter the filename or filelocation you want to upload"
-                class="bg-gray-100 p-4 rounded-lg text-sm overflow-auto flex-grow">
-        </div>
+          <input type="text" id="filePathInput" placeholder="Enter the filename or file location you want to upload"
+              class="bg-gray-300 p-4 rounded-lg text-sm overflow-auto flex-grow placeholder-gray-700">
+        </div>      
         <div class="flex items-center mb-4">
-            <pre id="curlCommand" class="max-w-2xl overflow-x-auto bg-gray-100 p-4 rounded-lg text-sm"></pre>
+            <pre id="curlCommand" class="max-w-2xl overflow-x-auto bg-gray-300 p-4 rounded-lg text-sm"></pre>
             <button id="copyCommand" class="ml-2 bg-blue-500 text-white py-2 px-4 rounded cursor-pointer border border-slate-500 hover:border-slate-100">Copy</button>
         </div>
         <button id="closeModal" class="bg-gray-500 text-white py-2 px-4 rounded cursor-pointer border border-slate-500 hover:border-slate-100">Close</button>
