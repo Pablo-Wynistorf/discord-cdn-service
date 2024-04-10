@@ -193,8 +193,18 @@ const curlCommand = document.getElementById('curlCommand');
 
 const currentHostname = window.location.origin;
 
+filePathInput.addEventListener('input', () => {
+  const filePath = filePathInput.value;
+  curlCommand.innerHTML = `curl -X POST ${currentHostname}/api/upload -F files=@${filePath}`;
+});
 
-curlCommand.innerHTML = `curl -X POST ${currentHostname}/api/upload -F "files=@/path/to/file"`;
+filePathInput.addEventListener('blur', () => {
+  if (filePathInput.value === '') {
+  curlCommand.innerHTML = `curl -X POST ${currentHostname}/api/upload -F files=@/path/to/file`;
+  }
+});
+
+curlCommand.innerHTML = `curl -X POST ${currentHostname}/api/upload -F files=@/path/to/file`;
 
 copyCommand.addEventListener('click', () => {
   navigator.clipboard.writeText(curlCommand.textContent);
