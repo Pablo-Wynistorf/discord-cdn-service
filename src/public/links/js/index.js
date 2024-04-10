@@ -23,7 +23,7 @@ function displayLinksInTable(links) {
       const copyCell = document.createElement("td");
       copyCell.className = "whitespace-nowrap px-3 py-4 text-sm text-gray-300";
       const copyButton = document.createElement("button");
-      copyButton.className = "copy-btn bg-gray-700 text-white px-2 py-1 rounded";
+      copyButton.className = "copy-btn bg-gray-700 text-white px-2 py-1 rounded border border-slate-500 hover:border-slate-100";
       copyButton.textContent = "Copy";
       copyButton.addEventListener("click", () => copyToClipboard(cdnLink));
       copyCell.appendChild(copyButton);
