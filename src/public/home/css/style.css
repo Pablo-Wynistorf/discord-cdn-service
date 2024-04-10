@@ -7,9 +7,9 @@
     border-radius: 0.5rem;
   }
   ::-webkit-scrollbar-thumb {
-    background: #ffffff;
+    background: #d1d5db;
     border-radius: 0.5rem;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #ffffff;
+    background: #d1d5db;
   }
