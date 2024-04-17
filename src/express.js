@@ -78,15 +78,13 @@ app.post("/api/upload", checkFileUpload, upload.array("files"), async (req, res)
 });
 
 
-
 app.get("/attachment/:messageId", async (req, res) => {
     try {
         const messageId = req.params.messageId;
         const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
-        if (!channel) return res.status(404).send('Channel not found!');
 
         const message = await channel.messages.fetch(messageId);
-        if (!message) return res.status(404).send('Message not found!');
+        if (!message) return res.redirect('/');
 
         const attachments = [];
         message.attachments.each(attachment => {
@@ -102,7 +100,8 @@ app.get("/attachment/:messageId", async (req, res) => {
     }
 });
 
-app.get("/attachments" , async (req, res) => {
+
+app.get("/attachment" , async (req, res) => {
     return res.redirect('/')
 });
 
