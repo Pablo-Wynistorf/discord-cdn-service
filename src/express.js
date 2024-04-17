@@ -7,6 +7,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const API_PORT = process.env.API_PORT;
+const APP_URL = process.env.APP_URL;
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 
@@ -49,31 +50,62 @@ app.post("/api/upload", checkFileUpload, upload.array("files"), async (req, res)
         }
 
         const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
-        if (channel && files) {
-            const cdnLinks = [];
-            for (const file of files) {
-                channel.send({ files: [{ attachment: file.path, name: file.originalname }] })
-                    .then(message => {
-                        const cdnLink = message.attachments.first().url;
-                        cdnLinks.push({ [file.originalname]: cdnLink });
-                        if (cdnLinks.length === files.length) {
-                            res.json({ cdnLinks });
+        if (!channel) {
+            return res.status(500).send('Internal Server Error');
+        }
+
+        const messageIds = [];
+        for (const file of files) {
+            channel.send({ files: [{ attachment: file.path, name: file.originalname }] })
+                .then(message => {
+                    messageIds.push({ [file.originalname]: `${APP_URL}/attachments/${message.id}` });
+                    if (messageIds.length === files.length) {
+                        res.json({ cdnLinks: messageIds });
+                    }
+                    fs.unlink(file.path, err => {
+                        if (err) {
+                            console.error(`Error deleting file ${file.path}:`, err);
                         }
-                        fs.unlink(file.path, err => {
-                            if (err) {
-                                console.error(`Error deleting file ${file.path}:`, err);
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        res.status(500).send('Internal Server Error');
                     });
-            }
+                })
+                .catch(error => {
+                    res.status(500).send('Internal Server Error');
+                });
         }
     } catch (error) {
         res.status(500).send('Internal Server Error');
     }
 });
+
+
+
+app.get("/attachments/:messageId", async (req, res) => {
+    try {
+        const messageId = req.params.messageId;
+        const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
+        if (!channel) return res.status(404).send('Channel not found!');
+
+        const message = await channel.messages.fetch(messageId);
+        if (!message) return res.status(404).send('Message not found!');
+
+        const attachments = [];
+        message.attachments.each(attachment => {
+            attachments.push(attachment.url);
+        });
+
+        if (attachments.length === 0) {
+            return res.redirect('/')
+        }
+        return res.redirect(attachments[0]);
+    } catch (err) {
+        return res.redirect('/')
+    }
+});
+
+app.get("/attachments" , async (req, res) => {
+    return res.redirect('/')
+});
+
 
 app.listen(API_PORT, () => {
     client.on('ready', () => {
