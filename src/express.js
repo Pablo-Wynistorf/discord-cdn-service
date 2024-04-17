@@ -58,7 +58,7 @@ app.post("/api/upload", checkFileUpload, upload.array("files"), async (req, res)
         for (const file of files) {
             channel.send({ files: [{ attachment: file.path, name: file.originalname }] })
                 .then(message => {
-                    messageIds.push({ [file.originalname]: `${APP_URL}/attachments/${message.id}` });
+                    messageIds.push({ [file.originalname]: `${APP_URL}/attachment/${message.id}` });
                     if (messageIds.length === files.length) {
                         res.json({ cdnLinks: messageIds });
                     }
@@ -79,7 +79,7 @@ app.post("/api/upload", checkFileUpload, upload.array("files"), async (req, res)
 
 
 
-app.get("/attachments/:messageId", async (req, res) => {
+app.get("/attachment/:messageId", async (req, res) => {
     try {
         const messageId = req.params.messageId;
         const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
