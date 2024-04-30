@@ -4,6 +4,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const multer = require('multer');
 const fs = require('fs');
 const cors = require('cors');
+const { timeStamp } = require('console');
 require('dotenv').config();
 
 const API_PORT = process.env.API_PORT;
@@ -110,5 +111,16 @@ app.listen(API_PORT, () => {
     client.on('ready', () => {
         console.log(`Logged in as application: ${client.user.tag}!`);
         console.log(`API started at http://localhost:${API_PORT}`);
+
+        setInterval(async () => {
+            try {
+                const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
+                await channel.messages.cache.clear();
+            } catch (err) {
+                console.error('Error clearing cache:', err);
+            }
+        }, 1 * 60 * 1000);
     });
 });
+
+
