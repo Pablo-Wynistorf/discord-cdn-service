@@ -85,21 +85,27 @@ app.get("/attachment/:messageId", async (req, res) => {
         const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
 
         const message = await channel.messages.fetch(messageId);
-        if (!message) return res.redirect('/');
-
-        const attachments = [];
-        message.attachments.each(attachment => {
-            attachments.push(attachment.url);
-        });
-
-        if (attachments.length === 0) {
-            return res.redirect('/')
+        if (!message || message.attachments.size === 0) {
+            return res.redirect('/');
         }
-        return res.redirect(attachments[0]);
+
+        const attachment = message.attachments.first();
+
+        if (attachment.contentType.includes('text/html')) {
+            fetch(attachment.url)
+                .then(response => response.text())
+                .then(text => {
+                    res.send(text);
+                })
+            return;
+        }
+
+        return res.redirect(attachment.url);
     } catch (err) {
-        return res.redirect('/')
+        return res.redirect('/');
     }
 });
+
 
 
 app.get("/attachment" , async (req, res) => {
